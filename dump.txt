@@ -1,0 +1,36 @@
+int zero[5][2] = {0, 0, 1, 0, 1, 2, 0, 2, 0, 0};
+	int one[2][2] = {0, 0, 2, 0};
+	int two[6][2] = {0, 0, 1, 0, 1, 1, 0, 1, 0, 2, 1, 2};
+	int three[7][2] = {0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2};
+	int four[4][2] = {1, 1, 0, 1, 1, 0, 1, 2};
+	int five[6][2] = {1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 2};
+	int six[6][2] = {1, 0, 0, 1, 0, 2, 1, 2, 1, 1, 0, 1};
+	int seven[3][2] = {0, 0, 1, 0, 0, 2};
+	int eight[8][2] = {0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2, 0, 0};
+	int nine[5][2] = {1, 2, 1, 0, 0, 0, 0, 1, 1, 1};
+
+    	
+	int zero[5][2] = {0, 0, 1, 0, 1, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0};
+	int one[2][2] = {0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0};
+	int two[6][2] = {0, 0, 1, 0, 1, 1, 0, 1, 0, 2, 1, 2, 1, 2, 1, 2};
+	int three[7][2] = {0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2, 0 ,2};
+	int four[4][2] = {1, 1, 0, 1, 1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2};
+	int five[6][2] = {1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 2, 0, 2, 0, 2};
+	int six[6][2] = {1, 0, 0, 1, 0, 2, 1, 2, 1, 1, 0, 1, 0, 1, 0, 1};
+	int seven[3][2] = {0, 0, 1, 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2};
+	int eight[8][2] = {0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2, 0, 0};
+	int nine[5][2] = {1, 2, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+
+    moveToLine(nine[0][0], nine[0][1], currentX, currentY, WHEEL_DIAMETER_CM, PINION_DIAMTER_CM);
+
+    int prevX = nine[0][0];
+    int prevY = nine[0][1];
+
+    for (int i = 1; i < 5; i++) {
+      drawLine(prevX, prevY, nine[i][0], nine[i][1], currentX, currentY,
+               WHEEL_DIAMETER_CM, PINION_DIAMTER_CM);
+      moveToLine(nine[i][0], nine[i][1], currentX, currentY, WHEEL_DIAMETER_CM,
+                 PINION_DIAMTER_CM);
+      prevX = nine[i][0];
+      prevY = nine[i][1];

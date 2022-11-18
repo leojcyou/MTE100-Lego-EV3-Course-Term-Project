@@ -7,7 +7,7 @@ i must sleep
 // Global Constants
 const int NO_POW = 0, STD_POW = 50;
 const float INOUTENCODERDISTANCE = 20, WHEEL_DIAMETER_CM = 2.3, PINION_DIAMETER_CM = 0.8, ERASER_HEIGHT_CM = 0, ERASER_WIDTH_CM = 0;
-const int BOX_LENGTH_CM = 66, BOX_HEIGHT_CM = 16, SPACE_WIDTH_CM = 2, CHAR_WIDTH_CM = 4, ERASE_MARKER_DIST_CM = 4, EDGE_OFFSET_CM = 5, TIME_INTERVAL = 300;
+const int BOX_LENGTH_CM = 68, BOX_HEIGHT_CM = 16, SPACE_WIDTH_CM = 2, CHAR_WIDTH_CM = 4, ERASE_MARKER_DIST_CM = 4, SMALL_DIST = 1, EDGE_OFFSET_CM = 5, TIME_INTERVAL = 300;
 
 // Prototype Functions
 int maxDays(int year, int month);
@@ -18,7 +18,7 @@ void updateDate(int* dateArray);
 int cmToEncoder(float distanceCM, float diameterFactor);
 void engageMarker(bool moveMarker, bool*markerDown, bool* emergencyCondition); //implement EC
 void moveEverything(float xDistance, float yDistance, float* currentX, float* currentY, bool* emergencyCondition); //implement EC
-void moveToLine(int lineStartX, int lineStartY, float* currentX, float* currentY, bool* markerDown, bool* emergencyCondition);
+void moveTo(float posX, float posY, float* currentX, float* currentY, bool* markerDown, bool* emergencyCondition); //fix distancing
 
 void emergencyStop(int dangerDistance, float* currentX, float* currentY, bool* markerDown);
 void drawLineFunction(int startX, int startY, int endX, int endY, float* currentX,float* currentY, bool* markerDown);
@@ -27,48 +27,26 @@ void drawLineFunction(int startX, int startY, int endX, int endY, float* current
 void calibrationFunction(float* currentX, float* currentY, bool* markerDown, bool* emergencyCondition); //needs to be finalised //implement EC
 void eraseAll(float* currentX, float* currentY, bool* markerDown, bool* emergencyCondition); //needs to be finalised //implement EC
 
-typedef struct
+task main() 
 {
-	char relNum;
-	int numArray[8][2] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};//not sure if this is correct initialisation
-
-} numArrays;
-
-
-task main()
-{
-	/*
+	
 	int slash[2][2] = {1, 0, 0, 2};
-	int zero[5][2] = {0, 0, 1, 0, 1, 2, 0, 2, 0, 0};
-	int one[2][2] = {0, 0, 2, 0};
-	int two[6][2] = {0, 0, 1, 0, 1, 1, 0, 1, 0, 2, 1, 2};
-	int three[7][2] = {0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2};
-	int four[4][2] = {1, 1, 0, 1, 1, 0, 1, 2};
-	int five[6][2] = {1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 2};
-	int six[6][2] = {1, 0, 0, 1, 0, 2, 1, 2, 1, 1, 0, 1};
-	int seven[3][2] = {0, 0, 1, 0, 0, 2};
-	int eight[8][2] = {0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2, 0, 0};
-	int nine[5][2] = {1, 2, 1, 0, 0, 0, 0, 1, 1, 1};
-	*/
-
-	struct numArrays slash = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
-
-	struct numArrays zero = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
-	struct numArrays one = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
-	struct numArrays two = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
-	struct numArrays three = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
-	struct numArrays four = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
-	struct numArrays five = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
-	struct numArrays six = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
-	struct numArrays seven = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
-	struct numArrays eight = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
-	struct numArrays nine = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
-
+	int numArrays[9][8][2] = {{{0, 0}, {1, 0}, {1, 2}, {0, 2}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+							  0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0,
+							  0, 0, 1, 0, 1, 1, 0, 1, 0, 2, 1, 2, 1, 2, 1, 2, 
+							  0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2, 0, 2,
+							  1, 1, 0, 1, 1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 
+							  1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 2, 0, 2, 0, 2, 
+							  1, 0, 0, 1, 0, 2, 1, 2, 1, 1, 0, 1, 0, 1, 0, 1,
+							  0, 0, 1, 0, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 
+							  0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2, 0, 0, 
+							  1, 2, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	
 	int dateArray[3] = {0,0,0};
 	int dateCharacterArray[8] = {0,0,0,0,0,0,0,0};
 
 	bool dateInput = false, emergencyStatus = false, stopRequired = false, markerDown = false, emergencyCondition = false;
-	float currentX = 0, currentY = 0, prevX = 0, prevY = 0; 
+	float currentX = 0, currentY = 0, prevX = 0, prevY = 0, nextX = 0, nextY = 0; 
 	
 	while(!dateInput)
 	{
@@ -81,26 +59,35 @@ task main()
 	while(!emergencyCondition)
 	{
 		updateDateCharacterArray(dateArray, dateCharacterArray);
-
-		
+		//move to inner box
 
 		for(int dateArrayIndex = 0; dateArrayIndex < 8; dateArrayIndex++)
 		{
-			moveToLine();
+			int numDraw = dateCharacterArray[dateArrayIndex];
+			int lineStartX = numArrays[numDraw][0][0];
+			int lineStartY = numArrays[numDraw][0][1];
+			moveTo(lineStartX, lineStartY, currentX, currentY, markerDown, emergencyCondition); //for num
+		
 
-			for(int charArrayIndex = 0; charArrayIndex< ; charArrayIndex++)
-			{
+			for(int charArrayIndex = 0; charArrayIndex < 8; charArrayIndex++)
+			{	
+				
 				drawLine();
+				//space
+				//move to (0,0) of new char
 			}
 			
 			if(dateArrayIndex == 1 || dateArrayIndex == 3)
 			{
-				moveToLine();
-				drawLine();
+				moveTo(); //for slash
+				drawLine(); //for slash
+				//space
+				//move to (0,0) of new char
 			}
 		}
 
-		moveToLine();
+		//go to start
+
 		while(time100[T1]<TIME_INTERVAL* && !getButtonPress(buttonAny) && !SensorValue(S3) < BOX_HEIGHT_CM)
 		{}
 		if (getButtonPress(buttonAny) || SensorValue(S3) < BOX_HEIGHT_CM)
@@ -324,11 +311,11 @@ void moveEverything(float xDistance, float yDistance, float* currentX, float* cu
 	currentY += yEncoderChange;
 }
 
-void moveToLine(int lineStartX, int lineStartY, float* currentX, float* currentY, bool* markerDown)
+void moveTo(float posX, float posY, float* currentX, float* currentY, bool* markerDown)
 {
 	engageMarker(false, markerDown);
-	int xDistance = lineStartX - currentX;
-	int yDistance = lineStartY - currentY;
+	int xDistance = posX - currentX;
+	int yDistance = posY - currentY;
 
 	moveEverything(xDistance, yDistance, currentX, currentY);
 }
@@ -355,7 +342,7 @@ void emergencyStop(int dangerDistance, float* currentX, float* currentY, bool* m
 	time100[T2] = 0;
 	while (SensorValue[S3] <= dangerDistance && time100[T2] < 20)
 	{}
-	moveToLine(0, 0, currentX, currentY, markerDown);
+	moveTo(0, 0, currentX, currentY, markerDown); //this may need fixing
 }
 
 void calibrationFunction(float* currentX, float* currentY, bool* markerDown, bool* emergencyCondition)
