@@ -1,50 +1,132 @@
+/*
+Need to change emergency condition codes so enough parameters ar epassing
+char -> arrays need to be sorted
+i must sleep
+
+*/
 // Global Constants
 const int NO_POW = 0, STD_POW = 50;
-const float INOUTENCODERDISTANCE = 20, WHEEL_DIAMETER_CM = 2.3, PINION_DIAMTER_CM = 0.8;
-const int BOX_LENGTH_CM = 66, BOX_HEIGHT_CM = 16, SPACE_WIDTH_CM = 2, CHAR_WIDTH_CM = 4, ERASE_MARKER_DIST_CM = 4, EDGE_OFFSET_CM = 5; ;
+const float INOUTENCODERDISTANCE = 20, WHEEL_DIAMETER_CM = 2.3, PINION_DIAMETER_CM = 0.8, ERASER_HEIGHT_CM = 0, ERASER_WIDTH_CM = 0;
+const int BOX_LENGTH_CM = 66, BOX_HEIGHT_CM = 16, SPACE_WIDTH_CM = 2, CHAR_WIDTH_CM = 4, ERASE_MARKER_DIST_CM = 4, EDGE_OFFSET_CM = 5, TIME_INTERVAL = 300;
 
 // Prototype Functions
 int maxDays(int year, int month);
 bool inputDate(int* dateArray);
 void updateDateCharacterArray(int* dateArray, int* dateCharacterArray);
 void updateDate(int* dateArray);
+
 int cmToEncoder(float distanceCM, float diameterFactor);
-//void calibrationFunction();
-void emergencyStop(int dangerDistance, bool &markerDown);
-// void eraseAll();
-void engageMarker(bool moveMarker, bool &markerDown);
-void moveToLine(int lineStartX, int lineStartY, float &currentX,float &currentY, bool &markerDown);
-void moveEverything(float xDistance, float yDistance);
-void drawLine(int startX, int startY, int endX, int endY, float &currentX,float &currentY);
+void engageMarker(bool moveMarker, bool*markerDown, bool* emergencyCondition); //implement EC
+void moveEverything(float xDistance, float yDistance, float* currentX, float* currentY, bool* emergencyCondition); //implement EC
+void moveToLine(int lineStartX, int lineStartY, float* currentX, float* currentY, bool* markerDown, bool* emergencyCondition);
 
+void emergencyStop(int dangerDistance, float* currentX, float* currentY, bool* markerDown);
+void drawLineFunction(int startX, int startY, int endX, int endY, float* currentX,float* currentY, bool* markerDown);
 
-// Move to main
-bool markerDown = false;
-float currentX = 0; // in encoder distances
-float currentY = 0; // in encoder distances
+//URGENTLY NEEDS TO BE DONE
+void calibrationFunction(float* currentX, float* currentY, bool* markerDown, bool* emergencyCondition); //needs to be finalised //implement EC
+void eraseAll(float* currentX, float* currentY, bool* markerDown, bool* emergencyCondition); //needs to be finalised //implement EC
+
+typedef struct
+{
+	char relNum;
+	int numArray[8][2] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};//not sure if this is correct initialisation
+
+} numArrays;
 
 
 task main()
 {
+	/*
+	int slash[2][2] = {1, 0, 0, 2};
+	int zero[5][2] = {0, 0, 1, 0, 1, 2, 0, 2, 0, 0};
+	int one[2][2] = {0, 0, 2, 0};
+	int two[6][2] = {0, 0, 1, 0, 1, 1, 0, 1, 0, 2, 1, 2};
+	int three[7][2] = {0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2};
+	int four[4][2] = {1, 1, 0, 1, 1, 0, 1, 2};
+	int five[6][2] = {1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 2};
+	int six[6][2] = {1, 0, 0, 1, 0, 2, 1, 2, 1, 1, 0, 1};
+	int seven[3][2] = {0, 0, 1, 0, 0, 2};
+	int eight[8][2] = {0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2, 0, 0};
+	int nine[5][2] = {1, 2, 1, 0, 0, 0, 0, 1, 1, 1};
+	*/
 
-	//int slash[2][2] = {0, 2, 1, 0};
-	//int zero[5][2] = {0, 0, 1, 0, 1, 2, 0, 2, 0, 0};
-	//int one[2][2] = {0, 0, 2, 0};
-	//int two[6][2] = {0, 0, 1, 0, 1, 1, 0, 1, 0, 2, 1, 2};
-	//int three[7][2] = {0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2};
-	//int four[4][2] = {1, 1, 0, 1, 1, 0, 1, 2};
-	//int five[6][2] = {1, 0, 0, 0, 0, 1, 1, 1, 1, 2, 0, 2};
-	//int six[6][2] = {1, 0, 0, 1, 0, 2, 1, 2, 1, 1, 0, 1};
-	//int seven[3][2] = {0, 0, 1, 0, 0, 2};
-	//int eight[8][2] = {0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 2, 0, 2, 0, 0};
-	//int nine[5][2] = {1, 2, 1, 0, 0, 0, 0, 1, 1, 1};
+	struct numArrays slash = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
 
-	//bool dateInput = false, emergencyStatus = false, stopRequired = false;
-	//int dateArray[3] = {0,0,0}, dateCharacterArray[8] = {0,0,0,0,0,0,0,0};
+	struct numArrays zero = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
+	struct numArrays one = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
+	struct numArrays two = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
+	struct numArrays three = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
+	struct numArrays four = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
+	struct numArrays five = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
+	struct numArrays six = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
+	struct numArrays seven = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
+	struct numArrays eight = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
+	struct numArrays nine = {"/",{1,0,0,2,0,2,0,2,0,2,0,2,0,2,0,2}};
+
+	int dateArray[3] = {0,0,0};
+	int dateCharacterArray[8] = {0,0,0,0,0,0,0,0};
+
+	bool dateInput = false, emergencyStatus = false, stopRequired = false, markerDown = false, emergencyCondition = false;
+	float currentX = 0, currentY = 0, prevX = 0, prevY = 0; 
+	
+	while(!dateInput)
+	{
+		dateInput = inputDate(dateArray);
+	}
+	
+	calibration();
+	time100[T1]=0;
+	
+	while(!emergencyCondition)
+	{
+		updateDateCharacterArray(dateArray, dateCharacterArray);
+
+		
+
+		for(int dateArrayIndex = 0; dateArrayIndex < 8; dateArrayIndex++)
+		{
+			moveToLine();
+
+			for(int charArrayIndex = 0; charArrayIndex< ; charArrayIndex++)
+			{
+				drawLine();
+			}
+			
+			if(dateArrayIndex == 1 || dateArrayIndex == 3)
+			{
+				moveToLine();
+				drawLine();
+			}
+		}
+
+		moveToLine();
+		while(time100[T1]<TIME_INTERVAL* && !getButtonPress(buttonAny) && !SensorValue(S3) < BOX_HEIGHT_CM)
+		{}
+		if (getButtonPress(buttonAny) || SensorValue(S3) < BOX_HEIGHT_CM)
+		{
+			emergencyCondition = true;
+		}
+		else
+		{
+			clearTimer[T1];
+			updateDate(dateArray);
+			eraseAll(currentX, currentY, markerDown, emergencyCondition);
+		}
+	}
+
+	if (emergencyCondition)
+	{
+		emergencyStop(SensorValue[S3], currentX, currentY, markerDown)
+	}
+	else
+	{
+		eraseAll(currentX, currentY, markerDown, emergencyCondition); //what if emergency here?
+	}
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-// Functions:
+////////////////////////////////////////////////////////////////////////////////////////////
+
 int maxDays(int year, int month)
 {
 	int maxDate = 31;
@@ -129,7 +211,7 @@ bool inputDate(int* dateArray)
 	displayString(2, "Enter the day: ", "%s", startDay);
 	wait1Msec(2000);
 
-	displayString(2, "Is this the correct date? ", "%s", startYear, "/", "%s",startMonth, "/", "%s",startDay); // IDK if this is the right syntax
+	displayString(2, "Is this the correct date? ", "%s", startYear, "/", "%s",startMonth, "/", "%s",startDay); 
 	wait1Msec(2000);
 	displayString(3, "Press enter to confirm.");
 	displayString(4, "Press any other button to restart.");
@@ -193,7 +275,7 @@ int cmToEncoder(float distanceCM, float diameterFactor)
 	return distanceCM * 180 / (diameterFactor * PI);
 }
 
-void engageMarker(bool moveMarker, bool &markerDown)
+void engageMarker(bool moveMarker, bool* markerDown, bool* emergencyCondition)
 {
 	const float TOTAL_ENCODER_DISTANCE = 10;
 	const int MOTOR_C_POWER = 20;
@@ -219,10 +301,10 @@ void engageMarker(bool moveMarker, bool &markerDown)
 	markerDown = !markerDown;
 }
 
-void moveEverything(float xDistance, float yDistance)
+void moveEverything(float xDistance, float yDistance, float* currentX, float* currentY, bool* emergencyCondition)
 {
 	int xEncoderChange = cmToEncoder(xDistance, WHEEL_DIAMETER_CM);
-	int yEncoderChange = cmToEncoder(yDistance, PINION_DIAMTER_CM);
+	int yEncoderChange = cmToEncoder(yDistance, PINION_DIAMETER_CM);
 
 	int xEncoderFinal = nMotorEncoder[motorA] + xEncoderChange;
 	int yEncoderFinal = nMotorEncoder[motorB] + yEncoderChange;
@@ -234,7 +316,7 @@ void moveEverything(float xDistance, float yDistance)
 	motor[motorA] = STD_POW * xRate;
 	motor[motorB] = STD_POW * yRate;
 
-	while (abs(xEncoderFinal - nMotorEncoder[motorA]) < abs(xEncoderChange) && abs(yEncoderFinal - nMotorEncoder[motorB]) < abs(yEncoderChange))
+	while (abs(xEncoderFinal - nMotorEncoder[motorA]) < abs(xEncoderChange)*& abs(yEncoderFinal - nMotorEncoder[motorB]) < abs(yEncoderChange))
 	{}
 	motor[motorA] = motor[motorB] = NO_POW;
 
@@ -242,67 +324,97 @@ void moveEverything(float xDistance, float yDistance)
 	currentY += yEncoderChange;
 }
 
-void moveToLine(int lineStartX, int lineStartY, float &currentX,float &currentY, bool &markerDown)
+void moveToLine(int lineStartX, int lineStartY, float* currentX, float* currentY, bool* markerDown)
 {
 	engageMarker(false, markerDown);
 	int xDistance = lineStartX - currentX;
 	int yDistance = lineStartY - currentY;
 
-	moveEverything(xDistance, yDistance);
+	moveEverything(xDistance, yDistance, currentX, currentY);
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void drawLine(int startX, int startY, int endX, int endY, float &currentX,float &currentY)
+void drawLineFunction(int startX, int startY, int endX, int endY, float* currentX,float* currentY, bool* markerDown)
 {
 	int xDistance = endX - startX;
 	int yDistance = endY - startY;
 
-	//int finalX = currentX + xDistance;//??
-	//int finalY = currentY + yDistance;
-
 	engageMarker(true, markerDown);
 
-	moveEverything(xDistance, yDistance);
+	moveEverything(xDistance, yDistance, currentX, currentY);
 
 	engageMarker(false, markerDown);
 }
 
-void emergencyStop(int dangerDistance, bool &markerDown)
+void emergencyStop(int dangerDistance, float* currentX, float* currentY, bool* markerDown)
 {
-	motor[motorA] = motor[motorB] = NO_POW;
-	engageMarker(false, markerDown) ;
-	time100(T1) = 0;
-	while (SensorValue[S3] <= dangerDistance && time100[T1] < 100)
+	motor[motorA] = motor[motorB] = motor[motorC] = NO_POW;
+	engageMarker(false, markerDown);
+	time100[T2] = 0;
+	while (SensorValue[S3] <= dangerDistance && time100[T2] < 20)
 	{}
 	moveToLine(0, 0, currentX, currentY, markerDown);
 }
 
-//void calibrationFunction(int STD_POW, int BOX_LENGTH_CM, int BOX_HEIGHT_CM, int EDGE_OFFSET_CM, float WHEEL_DIAMETER_CM, float PINION_DIAMTER_CM)
-//{
-//	// drive forward and backup to offset edge
-//	short edgeOffsetEncoder = 0, boxLengthEncoder = 0, boxHeightEncoder = 0;
-//	motor[motorA] = STD_POW;
-//	while (SensorValue[S3])
-//	{}
-//	motor[motorA] = 0;
-//	edgeOffsetEncoder = cmToEncoder(EDGE_OFFSET_CM, WHEEL_DIAMETER_CM);
-//	boxLengthEncoder = cmToEncoder(BOX_LENGTH_CM, WHEEL_DIAMETER_CM);
-//	boxHeightEncoder = cmToEncoder(BOX_HEIGHT_CM, PINION_DIAMETER_CM);
-//	nMotorEncoder[motorA] = 0;
-//	motor[motorA] = -STD_POW;
-//	while (abs(nMotorEncoder[motorA]) < edgeOffsetEncoder)
-//	{}
-//	motor[motorA] = 0;
-//	// draw box
-//	while (!SensorValue[S3] && !getButtonPress(buttonAny))
-//	{
-//		moveEverything();
-//		drawLine(0, 0, boxHeightEncoder);
-//		drawLine();
-//		moveEverything();
-//		drawLine();
-//		drawLine();
-//	}
-//}
+void calibrationFunction(float* currentX, float* currentY, bool* markerDown, bool* emergencyCondition)
+{
+	// drive forward and backup to where erase function is set to start (edge offset distance from right corner)
+	short edgeOffsetEncoder = 0, boxLengthEncoder = 0, boxHeightEncoder = 0;
+
+	motor[motorA] = STD_POW;
+	while (SensorValue[S3])
+	{}
+	motor[motorA] = 0;
+
+	edgeOffsetEncoder = cmToEncoder(EDGE_OFFSET_CM, WHEEL_DIAMETER_CM);
+	boxLengthEncoder = cmToEncoder(BOX_LENGTH_CM, WHEEL_DIAMETER_CM);
+	boxHeightEncoder = cmToEncoder(BOX_HEIGHT_CM, PINION_DIAMETER_CM);
+
+	//Sets x position to 0
+	nMotorEncoder[motorA] = 0;
+
+	motor[motorA] = -STD_POW;
+	while (abs(nMotorEncoder[motorA]) < edgeOffsetEncoder)
+	{}
+	motor[motorA] = 0;
+
+	nMotorEncoder[motorA] = 0;
+
+	//Sets y position to 0
+
+  	// erase the area
+  	eraseAll();
+  	// draw box
+	while (!SensorValue[S3] && !getButtonPress(buttonAny))
+	{
+		drawLineFunction(0, 0,);
+		drawLineFunction();
+		drawLineFunction();
+		drawLineFunction();
+    	moveEverything();
+	}
+
+	float currentX = 0, currentY = 0; 
+}
+
+void eraseAll(float* currentX, float* currentY, bool* markerDown, bool* emergencyCondition)
+{
+  //moves the robot to the origin minus distance len
+  float distAcross = BOX_LENGTH_CM - 2*(SMALL_DIST + ERASER_WIDTH_CM + BETWEEN_DIST);
+  const float MULTIPLIER = 0.75;
+  int NUM_SWIPES = BOX_HEIGHT_CM/(ERASER_HEIGHT_CM*MULTIPLIER) + 1;
+  
+  for(int i=0; i < NUM_SWIPES; i++)
+  {
+    //moves down by the height of the eraser and back the horizontal distance
+    moveEverything(distAcross, ERASER_HEIGHT_CM*MULTIPLIER);
+
+    //drawline of distAcross
+    drawLineFunction(currentX, currentY, endX, endY, currentX, currentY, markerDown); 
+  }  
+  
+  //moves up by the height of the box 
+  moveEverything(0, BOX_HEIGHT_CM); 
+}
