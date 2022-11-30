@@ -73,7 +73,7 @@ task main()
 			{	
 				
 				drawLine();
-				//space
+				//space 
 				//move to (0,0) of new char
 			}
 			
@@ -389,7 +389,7 @@ void calibrationFunction(float* currentX, float* currentY, bool* markerDown, boo
 void eraseAll(float* currentX, float* currentY, bool* markerDown, bool* emergencyCondition)
 {
   //moves the robot to the origin minus distance len
-  float distAcross = BOX_LENGTH_CM - 2*(SMALL_DIST + ERASER_WIDTH_CM + BETWEEN_DIST);
+  float distAcross = BOX_LENGTH_CM - 2*(SMALL_DIST + ERASER_WIDTH_CM + ERASE_MARKER_DIST_CM);
   const float MULTIPLIER = 0.75;
   int NUM_SWIPES = BOX_HEIGHT_CM/(ERASER_HEIGHT_CM*MULTIPLIER) + 1;
   
@@ -400,7 +400,7 @@ void eraseAll(float* currentX, float* currentY, bool* markerDown, bool* emergenc
 
     //drawline of distAcross
     drawLineFunction(currentX, currentY, endX, endY, currentX, currentY, markerDown); 
-  }  
+  }
   
   //moves up by the height of the box 
   moveEverything(0, BOX_HEIGHT_CM); 
